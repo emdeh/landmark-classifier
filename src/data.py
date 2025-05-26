@@ -158,13 +158,13 @@ def visualize_one_batch(data_loaders, max_n: int = 5):
     :return: None
     """
 
-    # YOUR CODE HERE:
+    # [DONE] YOUR CODE HERE:
     # obtain one batch of training images
     # First obtain an iterator from the train dataloader
-    dataiter  = # YOUR CODE HERE
+    dataiter  = iter(data_loaders["train"])
     # Then call the .next() method on the iterator you just
     # obtained
-    images, labels  = # YOUR CODE HERE
+    images, labels  = next(dataiter)
 
     # Undo the normalization (for visualization purposes)
     mean, std = compute_mean_and_std()
@@ -179,7 +179,7 @@ def visualize_one_batch(data_loaders, max_n: int = 5):
 
     # YOUR CODE HERE:
     # Get class names from the train data loader
-    class_names  = # YOUR CODE HERE
+    class_names  = data_loaders["train"].dataset.classes
 
     # Convert from BGR (the format used by pytorch) to
     # RGB (the format expected by matplotlib)
