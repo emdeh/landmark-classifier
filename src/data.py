@@ -200,7 +200,6 @@ def visualize_one_batch(data_loaders, max_n: int = 5):
 ######################################################################################
 import pytest
 
-
 @pytest.fixture(scope="session")
 def data_loaders():
     return get_data_loaders(batch_size=2, num_workers=0)
