@@ -98,3 +98,10 @@ Include a short discussion of **other potential use cases** for your model or fe
 - Environmental change detection from imagery
 
 Show how your work could extend beyond this specific task to solve real-world problems.
+___
+
+
+### Credits
+
+Original content from Udacity
+https://github.com/udacity/cd1821-CNN-project-starter.git
