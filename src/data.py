@@ -38,7 +38,7 @@ def get_data_loaders(
     mean, std = compute_mean_and_std()
     print(f"Dataset mean: {mean}, std: {std}")
 
-    # YOUR CODE HERE:
+    # YOUR CODE HERE [DONE]
     # create 3 sets of data transforms: one for the training dataset,
     # containing data augmentation, one for the validation dataset
     # (without data augmentation) and one for the test set (again
@@ -47,13 +47,31 @@ def get_data_loaders(
     # appropriate transforms for that step
     data_transforms = {
         "train": transforms.Compose(
-            # YOUR CODE HERE
+            [
+                # Random scale + location crop instead of resize and fixed crop.
+                transforms.RandomResizedCrop(224, scale=(0.8,1.0)),
+                transforms.RandomHorizontalFlip(),
+                # Optional extra augmentations:
+                transform.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=mean, std=std),
+            ]
         ),
         "valid": transforms.Compose(
-            # YOUR CODE HERE
+            [
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=mean, std=std),
+            ]
         ),
         "test": transforms.Compose(
-            # YOUR CODE HERE
+            [
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=mean, std=std),
+            ]
         ),
     }
 
