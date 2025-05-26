@@ -38,7 +38,7 @@ def get_data_loaders(
     mean, std = compute_mean_and_std()
     print(f"Dataset mean: {mean}, std: {std}")
 
-    # YOUR CODE HERE [DONE]
+    # [DONE] YOUR CODE HERE 
     # create 3 sets of data transforms: one for the training dataset,
     # containing data augmentation, one for the validation dataset
     # (without data augmentation) and one for the test set (again
@@ -78,15 +78,17 @@ def get_data_loaders(
     # Create train and validation datasets
     train_data = datasets.ImageFolder(
         base_path / "train",
-        # YOUR CODE HERE: add the appropriate transform that you defined in
+        # [DONE] YOUR CODE HERE: add the appropriate transform that you defined in
         # the data_transforms dictionary
+        transform=data_transforms["train"]
     )
     # The validation dataset is a split from the train_one_epoch dataset, so we read
     # from the same folder, but we apply the transforms for validation
     valid_data = datasets.ImageFolder(
         base_path / "train",
-        # YOUR CODE HERE: add the appropriate transform that you defined in
+        # [DONE] YOUR CODE HERE: add the appropriate transform that you defined in
         # the data_transforms dictionary
+        transform=data_transforms["valid"]
     )
 
     # obtain training indices that will be used for validation
@@ -103,7 +105,7 @@ def get_data_loaders(
 
     # define samplers for obtaining training and validation batches
     train_sampler = torch.utils.data.SubsetRandomSampler(train_idx)
-    valid_sampler  = # YOUR CODE HERE
+    valid_sampler  = torch.utils.data.SubsetRandomSampler(valid_idx)
 
     # prepare data loaders
     data_loaders["train"] = torch.utils.data.DataLoader(
@@ -113,13 +115,19 @@ def get_data_loaders(
         num_workers=num_workers,
     )
     data_loaders["valid"] = torch.utils.data.DataLoader(
-        # YOUR CODE HERE
+        # [DONE] YOUR CODE HERE
+        valid_data,
+        batch_size=batch_size,
+        sampler=valid_sampler,
+        num_workers=num_workers,
+        pin_memory=True, # Optional: pin memory for faster data transfer to GPU
     )
 
     # Now create the test data loader
     test_data = datasets.ImageFolder(
         base_path / "test",
-        # YOUR CODE HERE (add the test transform)
+        # [DONE] YOUR CODE HERE (add the test transform)
+        transform=data_transforms["test"]
     )
 
     if limit > 0:
@@ -130,6 +138,12 @@ def get_data_loaders(
 
     data_loaders["test"] = torch.utils.data.DataLoader(
         # YOUR CODE HERE (remember to add shuffle=False as well)
+        test_data,
+        batch_size=batch_size,
+        sampler=test_sampler,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True,
     )
 
     return data_loaders
