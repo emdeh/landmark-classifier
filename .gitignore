@@ -1,4 +1,5 @@
 checkpoints/
+checkpoints/best_val_loss.pt
 
 .kaggle/
 landmark_images/
