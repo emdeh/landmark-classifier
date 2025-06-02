@@ -14,30 +14,42 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
+# Try to import DirectML; if it fails, `dml_device` will remain None
+try:
+    import torch_directml
+    dml_device = torch_directml.device()
+except ImportError:
+    dml_device = None
 
 def setup_env():
-    use_cuda = torch.cuda.is_available()
-
-    if use_cuda:
-        print("GPU available")
+    
+    # 1. Device selection
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+        print("Using CUDA GPU")
+    elif dml_device is not None:
+        device = dml_device
+        print(f"Using DirectML device: {device}")
     else:
-        print("GPU *NOT* available. Will use CPU (slow)")
+        device = torch.device("cpu")
+        print("No GPU available. Using CPU (slow)")
 
-    # Seed random generator for repeatibility
+    # 2. Seed random generator for repeatibility
     seed = 42
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    if device.type == 'cuda':
+        torch.cuda.manual_seed_all(seed)
 
-    # Download data if not present already
+    # 3. Download data if not present already
     download_and_extract()
     compute_mean_and_std()
 
-    # Make checkpoints subdir if not existing
+    # 4. Make checkpoints subdir if not existing
     os.makedirs("checkpoints", exist_ok=True)
     
-    # Make sure we can reach the installed binaries. This is needed for the workspace
+    # 5. Make sure we can reach the installed binaries. This is needed for the workspace
     if os.path.exists("/data/DLND/C2/landmark_images"):
         os.environ['PATH'] = f"{os.environ['PATH']}:/root/.local/bin"
 
