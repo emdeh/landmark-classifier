@@ -58,7 +58,7 @@ def train_one_epoch(train_dataloader, model, optimizer, loss_fn, device=None):
     print("training on:", next(model.parameters()).device)
 
     train_loss = 0.0
-    
+
     for batch_idx, (data, target) in tqdm(
         enumerate(train_dataloader),
         desc="Training",
@@ -71,17 +71,23 @@ def train_one_epoch(train_dataloader, model, optimizer, loss_fn, device=None):
         optimizer.zero_grad()
         output = model(data)
         loss_value = loss_fn(output, target)
+
+        # ─── On the first batch of the epoch, print loss, accuracy, and gradient norm ───
+        if batch_idx == 0:
+            preds = output.argmax(dim=1)
+            batch_acc = (preds == target).float().mean().item()
+            print(f"[Batch 0] pre-step loss = {loss_value.item():.4f}, acc = {100*batch_acc:.1f}%")
+
         loss_value.backward()
-        
-        ## ───── DEBUG: print total grad magnitude (first batch each epoch) ─────
-        #if batch_idx == 0:                        # only once per epoch
-        #    total_grad = sum(
-        #        p.grad.abs().sum().item()
-        #        for p in model.parameters()
-        #        if p.grad is not None
-        #    )
-        #    print(f"∑|grad| = {total_grad:.2e}")
-        ## ──────────────────────────────────────────────────────────────────────
+
+        if batch_idx == 0:
+            total_grad = sum(
+                p.grad.detach().abs().sum().item()
+                for p in model.parameters()
+                if p.grad is not None
+            )
+            print(f"[Batch 0] ∑|grad| = {total_grad:.2e}")
+        # ───────────────────────────────────────────────────────────────────────────────────────
 
         optimizer.step()
 
@@ -89,9 +95,9 @@ def train_one_epoch(train_dataloader, model, optimizer, loss_fn, device=None):
             (1 / (batch_idx + 1)) * (loss_value.item() - train_loss)
         )
 
-    
-
     return train_loss
+
+
 
 
 def valid_one_epoch(valid_dataloader, model, loss_fn, device=None):
