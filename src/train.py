@@ -1,5 +1,4 @@
 import tempfile
-
 import torch
 import numpy as np
 from livelossplot import PlotLosses
@@ -168,18 +167,25 @@ def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, devic
     valid_loss_min = None
     logs = {}
 
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer,
-        mode="min",
-        factor=0.1,
-        patience=scheduler_patience,
-        threshold=1e-4
+    #scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    #    optimizer,
+    #    mode="min",
+    #    factor=0.1,
+    #    patience=scheduler_patience,
+    #    threshold=1e-4
+#
+    #)
 
+    scheduler = torch.optim.lr_scheduler.StepLR(
+        optimizer,
+        step_size=scheduler_patience,
+        gamma=0.1
     )
 
     for epoch in range(1, n_epochs + 1):
         train_loss = train_one_epoch(data_loaders["train"], model, optimizer, loss_fn, device)
         valid_loss = valid_one_epoch(data_loaders["valid"], model, loss_fn, device)
+        scheduler.step() # step the scheduler after validation loss - used with StepLR
 
         print(
             f"Epoch: {epoch} \t"
