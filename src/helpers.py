@@ -2,56 +2,92 @@ from io import BytesIO
 import urllib.request
 from zipfile import ZipFile
 import os
+
 import torch
 import torch.utils.data
 from torchvision import datasets, transforms
 from tqdm import tqdm
 import multiprocessing
+
+import numpy as np
+import random
 import matplotlib.pyplot as plt
 
 
-# Let's see if we have an available GPU
-import numpy as np
-import random
-
-# Try to import DirectML; if it fails, `dml_device` will remain None
-try:
-    import torch_directml
-    dml_device = torch_directml.device()
-except ImportError:
-    dml_device = None
-
 def setup_env():
-    
-    # 1. Device selection
+    """
+    1. Detect whether CUDA is available. If not, enumerate all DirectML adapters,
+       pick the one named 'RX 7900 XT' (if present), otherwise use the default.
+       Fall back to CPU only if no DML adapter is usable.
+    2. Seed RNGs (torch.manual_seed always; torch.cuda.manual_seed_all if using CUDA).
+    3. Download & extract data if needed, then compute mean/std.
+    4. Create 'checkpoints' folder if missing.
+    5. Adjust PATH for Udacity workspace if necessary.
+    Returns the chosen device (torch.device('cuda'), a torch_directml device, or torch.device('cpu')).
+    """
+    # -------- 1. Device selection --------
     if torch.cuda.is_available():
         device = torch.device("cuda")
         print("Using CUDA GPU")
-    elif dml_device is not None:
-        device = dml_device
-        print(f"Using DirectML device: {device}")
     else:
-        device = torch.device("cpu")
-        print("No GPU available. Using CPU (slow)")
+        # No CUDA → try DirectML
+        try:
+            import torch_directml
 
-    # 2. Seed random generator for repeatibility
+            n = torch_directml.device_count()
+            print(f"Found {n} DirectML adapter(s):")
+            for idx in range(n):
+                name = torch_directml.device_name(idx)
+                print(f"  • DML device-{idx} name: {name!r}")
+
+            # Look for "RX 7900 XT" in adapter names
+            chosen_idx = None
+            for idx in range(n):
+                if "RX 7900 XT" in torch_directml.device_name(idx):
+                    chosen_idx = idx
+                    break
+
+            if chosen_idx is None:
+                # If we didn’t find “RX 7900 XT”, fall back to default_device()
+                chosen_idx = torch_directml.default_device()
+                chosen_name = torch_directml.device_name(chosen_idx)
+                print(f"No adapter explicitly named 'RX 7900 XT' found. Using default index {chosen_idx}: {chosen_name!r}")
+            else:
+                chosen_name = torch_directml.device_name(chosen_idx)
+                print(f"Selecting adapter #{chosen_idx}: {chosen_name!r} (RX 7900 XT)")
+
+            # Create the DirectML device object for that index
+            device = torch_directml.device(chosen_idx)
+
+        except Exception as e:
+            # Any failure at all → fallback to CPU
+            device = torch.device("cpu")
+            print("No CUDA or usable DirectML adapters found. Using CPU (slow).")
+            # Optionally print the exception for debugging:
+            # print("  Error:", e)
+
+    # -------- 2. Seed RNGs ----------
     seed = 42
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    if device.type == 'cuda':
+    if device.type == "cuda":
         torch.cuda.manual_seed_all(seed)
 
-    # 3. Download data if not present already
+    # -------- 3. Download & compute mean/std ----------
     download_and_extract()
     compute_mean_and_std()
 
-    # 4. Make checkpoints subdir if not existing
+    # -------- 4. Create checkpoints dir ----------
     os.makedirs("checkpoints", exist_ok=True)
-    
-    # 5. Make sure we can reach the installed binaries. This is needed for the workspace
+
+    # -------- 5. Adjust PATH for Udacity workspace ----------
     if os.path.exists("/data/DLND/C2/landmark_images"):
-        os.environ['PATH'] = f"{os.environ['PATH']}:/root/.local/bin"
+        os.environ["PATH"] = f"{os.environ['PATH']}:/root/.local/bin"
+
+    return device
+
+
 
 
 def get_data_location():
