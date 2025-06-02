@@ -150,7 +150,12 @@ def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, devic
     logs = {}
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="min", factor=0.1, patience=1
+        optimizer,
+        mode="min",
+        factor=0.1,
+        patience=5,
+        threshold=1e-4
+
     )
 
     for epoch in range(1, n_epochs + 1):
