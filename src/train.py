@@ -55,6 +55,7 @@ def train_one_epoch(train_dataloader, model, optimizer, loss_fn, device=None):
 
     model = model.to(device)
     model.train()
+    print("training on:", next(model.parameters()).device)
 
     train_loss = 0.0
 
@@ -98,6 +99,7 @@ def valid_one_epoch(valid_dataloader, model, loss_fn, device=None):
 
     model = model.to(device)
     model.eval()
+    print("Validating on:", next(model.parameters()).device)
 
     valid_loss = 0.0
 
@@ -135,6 +137,9 @@ def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, devic
     """
     if device is None:
         device = _get_default_device()
+
+    model = model.to(device)
+    print("Optimising on:", next(model.parameters()).device)
 
     if interactive_tracking:
         liveloss = PlotLosses(outputs=[MatplotlibPlot(after_subplot=after_subplot)])

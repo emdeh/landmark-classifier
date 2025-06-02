@@ -28,7 +28,7 @@ class DataLoaderWithNext:
 
 
 def get_data_loaders(
-    batch_size: int = 32, valid_size: float = 0.2, num_workers: int = -1, limit: int = -1
+    batch_size: int = 32, valid_size: float = 0.2, num_workers: int = -1, pin_memory: bool = True, limit: int = -1
 ):
     """
     Create and return train, validation and test data loaders.
@@ -108,6 +108,7 @@ def get_data_loaders(
             batch_size=batch_size,
             sampler=train_sampler,
             num_workers=num_workers,
+            pin_memory=pin_memory,
         )
     )
     data_loaders["valid"] = DataLoaderWithNext(
@@ -116,7 +117,7 @@ def get_data_loaders(
             batch_size=batch_size,
             sampler=valid_sampler,
             num_workers=num_workers,
-            pin_memory=True,
+            pin_memory=pin_memory,
         )
     )
 
@@ -139,7 +140,7 @@ def get_data_loaders(
             sampler=test_sampler,
             shuffle=False,
             num_workers=num_workers,
-            pin_memory=True,
+            pin_memory=pin_memory,
         )
     )
 
