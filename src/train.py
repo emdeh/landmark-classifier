@@ -72,6 +72,17 @@ def train_one_epoch(train_dataloader, model, optimizer, loss_fn, device=None):
         output = model(data)
         loss_value = loss_fn(output, target)
         loss_value.backward()
+        
+        ## ───── DEBUG: print total grad magnitude (first batch each epoch) ─────
+        #if batch_idx == 0:                        # only once per epoch
+        #    total_grad = sum(
+        #        p.grad.abs().sum().item()
+        #        for p in model.parameters()
+        #        if p.grad is not None
+        #    )
+        #    print(f"∑|grad| = {total_grad:.2e}")
+        ## ──────────────────────────────────────────────────────────────────────
+
         optimizer.step()
 
         train_loss = train_loss + (
@@ -97,7 +108,7 @@ def valid_one_epoch(valid_dataloader, model, loss_fn, device=None):
       valid_loss (float): average loss over validation set.
     """
     if device is None:
-        device = _get_default_device()
+            device = _get_default_device()
 
     model = model.to(device)
     model.eval()
@@ -123,7 +134,7 @@ def valid_one_epoch(valid_dataloader, model, loss_fn, device=None):
     return valid_loss
 
 
-def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, device=None, interactive_tracking=False):
+def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, device=None, interactive_tracking=False, scheduler_patience: int = 20):
     """
     Full training + validation loop over n_epochs. Saves model when validation loss improves by ≥1%.
 
@@ -155,7 +166,7 @@ def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, devic
         optimizer,
         mode="min",
         factor=0.1,
-        patience=5,
+        patience=scheduler_patience,
         threshold=1e-4
 
     )
@@ -200,7 +211,7 @@ def one_epoch_test(test_dataloader, model, loss_fn, device=None):
     """
     if device is None:
         device = _get_default_device()
-
+        
     model = model.to(device)
     model.eval()
 
