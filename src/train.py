@@ -58,7 +58,7 @@ def train_one_epoch(train_dataloader, model, optimizer, loss_fn, device=None):
     print("training on:", next(model.parameters()).device)
 
     train_loss = 0.0
-
+    
     for batch_idx, (data, target) in tqdm(
         enumerate(train_dataloader),
         desc="Training",
@@ -77,6 +77,8 @@ def train_one_epoch(train_dataloader, model, optimizer, loss_fn, device=None):
         train_loss = train_loss + (
             (1 / (batch_idx + 1)) * (loss_value.item() - train_loss)
         )
+
+    
 
     return train_loss
 

@@ -38,7 +38,7 @@ def setup_env():
             print(f"Found {n} DirectML adapter(s):")
             for idx in range(n):
                 name = torch_directml.device_name(idx)
-                print(f"  • DML device-{idx} name: {name!r}")
+                print(f"DML device-{idx} name: {name!r}")
 
             # Look for "RX 7900 XT" in adapter names
             chosen_idx = None

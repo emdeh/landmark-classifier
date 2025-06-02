@@ -14,32 +14,24 @@ class MyModel(nn.Module):
         # the Dropout layer, use the variable "dropout" to indicate how much
         # to use (like nn.Dropout(p=dropout))
 
+        # Helper block: Conv > BN > ReLU
+        def cbr(inp, out):
+            return nn.Sequential(
+                nn.Conv2d(inp, out, kernel_size=3, padding=1, bias=False),
+                nn.BatchNorm2d(out),
+                nn.ReLU(inplace=True)
+            )
+
         self.features = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3, padding=1),     # 224×224 → 224×224
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2),                                # 224×224 → 112×112
-
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),    # 112×112 → 112×112
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2),                                # 112×112 → 56×56       
-
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),    # 56×56 → 56×56
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2),                                # 56×56 → 28×28     
-
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),   # 28×28 → 28×28   
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2),                                # 28×28 → 14×14     
+            cbr(3,   32), cbr(32,  32), nn.MaxPool2d(2),   # 224 → 112
+            cbr(32,  64), cbr(64,  64), nn.MaxPool2d(2),   # 112 → 56
+            cbr(64, 128), cbr(128,128), nn.MaxPool2d(2),   # 56  → 28
+            cbr(128,256), cbr(256,256), nn.MaxPool2d(2),   # 28  → 14
         )
 
-        # Collapse HxW to 1x1 to avoid hardcoding spatial dimensions
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-
-        # Dropout layer
-        self.dropout = nn.Dropout(p=dropout)
-
-        # Final linear layer
-        self.classifier = nn.Linear(128, num_classes)
+        self.avgpool   = nn.AdaptiveAvgPool2d(1)           # → 1 × 1
+        self.dropout   = nn.Dropout(dropout)
+        self.classifier = nn.Linear(256, num_classes)
 
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
