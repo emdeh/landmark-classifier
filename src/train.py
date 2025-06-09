@@ -139,7 +139,7 @@ def valid_one_epoch(valid_dataloader, model, loss_fn, device=None):
     return valid_loss
 
 
-def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, device=None, interactive_tracking=False, scheduler_patience: int = 20):
+def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, device=None, interactive_tracking=False, scheduler_patience = 10):
     """
     Full training + validation loop over n_epochs. Saves model when validation loss improves by ≥1%.
 
@@ -153,6 +153,7 @@ def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, devic
       device:               torch.device or DirectML device. If None, auto-select.
       interactive_tracking: whether to use livelossplot for real-time charts.
     """
+    print("Starting optimization...")
     if device is None:
         device = _get_default_device()
 
@@ -167,25 +168,25 @@ def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, devic
     valid_loss_min = None
     logs = {}
 
-    #scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    #scheduler = torch.optim.lr_scheduler.StepLR(
     #    optimizer,
-    #    mode="min",
-    #    factor=0.1,
-    #    patience=scheduler_patience,
-    #    threshold=1e-4
-#
+    #    step_size=scheduler_patience,
+    #    gamma=0.1
     #)
 
-    scheduler = torch.optim.lr_scheduler.StepLR(
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
-        step_size=scheduler_patience,
-        gamma=0.1
+        mode="min",
+        factor=0.1,
+        patience=scheduler_patience,
+        threshold=1e-2,
+        verbose=True
     )
 
     for epoch in range(1, n_epochs + 1):
         train_loss = train_one_epoch(data_loaders["train"], model, optimizer, loss_fn, device)
         valid_loss = valid_one_epoch(data_loaders["valid"], model, loss_fn, device)
-        scheduler.step() # step the scheduler after validation loss - used with StepLR
+        
 
         print(
             f"Epoch: {epoch} \t"
@@ -199,6 +200,9 @@ def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, devic
             valid_loss_min = valid_loss
 
         scheduler.step(valid_loss)
+        current_lr = optimizer.param_groups[0]["lr"]
+        print(f"  → LR after epoch {epoch}: {current_lr:.6f}")
+        logs["lr"] = current_lr
 
         if interactive_tracking:
             logs["loss"] = train_loss
