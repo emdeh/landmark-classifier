@@ -9,8 +9,9 @@ from src.helpers import after_subplot
 
 def _get_default_device():
     """
-    Helper to select a default device if none is provided.
+    Additional helper to select a default device if none is provided.
     Preference: CUDA > DirectML > CPU.
+    Needed this because of my AMD GPU setup which uses DirectML.
     """
     if torch.cuda.is_available():
         return torch.device("cuda")
@@ -167,12 +168,6 @@ def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, devic
 
     valid_loss_min = None
     logs = {}
-
-    #scheduler = torch.optim.lr_scheduler.StepLR(
-    #    optimizer,
-    #    step_size=scheduler_patience,
-    #    gamma=0.1
-    #)
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,

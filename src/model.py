@@ -16,11 +16,11 @@ class MyModel(nn.Module):
             )
 
         self.features = nn.Sequential(
-            conv_block(3,  32),  nn.MaxPool2d(2),   # 224→112
-            conv_block(32, 64),  nn.MaxPool2d(2),   # 112→56
-            conv_block(64,128),  nn.MaxPool2d(2),   # 56→28
-            conv_block(128,256), nn.MaxPool2d(2),   # 28→14
-            conv_block(256,512), nn.MaxPool2d(2),   # 14→7
+            conv_block(3,  32),  nn.MaxPool2d(2),   # 224 -> 112
+            conv_block(32, 64),  nn.MaxPool2d(2),   # 112-> 56
+            conv_block(64,128),  nn.MaxPool2d(2),   # 56 -> 28
+            conv_block(128,256), nn.MaxPool2d(2),   # 28 -> 14
+            conv_block(256,512), nn.MaxPool2d(2),   # 14 -> 7
         )
 
         self.avgpool   = nn.AdaptiveAvgPool2d((1,1))
