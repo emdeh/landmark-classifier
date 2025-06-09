@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+<<<<<<< HEAD
 class MyModel(nn.Module):
     def __init__(self, num_classes: int = 50, dropout: float = 0.6):
         super().__init__()
@@ -34,6 +35,26 @@ class MyModel(nn.Module):
         x = self.dropout(x)
         return self.classifier(x)   # (B,num_classes)
 
+=======
+
+# define the CNN architecture
+class MyModel(nn.Module):
+    def __init__(self, num_classes: int = 1000, dropout: float = 0.7) -> None:
+
+        super().__init__()
+
+        # YOUR CODE HERE
+        # Define a CNN architecture. Remember to use the variable num_classes
+        # to size appropriately the output of your classifier, and if you use
+        # the Dropout layer, use the variable "dropout" to indicate how much
+        # to use (like nn.Dropout(p=dropout))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # YOUR CODE HERE: process the input tensor through the
+        # feature extractor, the pooling and the final linear
+        # layers (if appropriate for the architecture chosen)
+        return x
+>>>>>>> origin/main
 
 
 ######################################################################################

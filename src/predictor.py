@@ -30,12 +30,21 @@ class Predictor(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         with torch.no_grad():
             # 1. apply transforms
+<<<<<<< HEAD
             x  = self.transforms(x)
             # 2. get the logits
             x  = self.model(x)
             # 3. apply softmax
             #    HINT: remmeber to apply softmax across dim=1
             x  = F.softmax(x, dim=1)
+=======
+            x  = # YOUR CODE HERE
+            # 2. get the logits
+            x  = # YOUR CODE HERE
+            # 3. apply softmax
+            #    HINT: remmeber to apply softmax across dim=1
+            x  = # YOUR CODE HERE
+>>>>>>> origin/main
 
             return x
 

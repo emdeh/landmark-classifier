@@ -2,12 +2,16 @@ from io import BytesIO
 import urllib.request
 from zipfile import ZipFile
 import os
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 import torch
 import torch.utils.data
 from torchvision import datasets, transforms
 from tqdm import tqdm
 import multiprocessing
+<<<<<<< HEAD
 
 import numpy as np
 import random
@@ -67,10 +71,30 @@ def setup_env():
             # print("  Error:", e)
 
     # -------- 2. Seed RNGs ----------
+=======
+import matplotlib.pyplot as plt
+
+
+# Let's see if we have an available GPU
+import numpy as np
+import random
+
+
+def setup_env():
+    use_cuda = torch.cuda.is_available()
+
+    if use_cuda:
+        print("GPU available")
+    else:
+        print("GPU *NOT* available. Will use CPU (slow)")
+
+    # Seed random generator for repeatibility
+>>>>>>> origin/main
     seed = 42
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
+<<<<<<< HEAD
     if device.type == "cuda":
         torch.cuda.manual_seed_all(seed)
 
@@ -88,6 +112,20 @@ def setup_env():
     return device
 
 
+=======
+    torch.cuda.manual_seed_all(seed)
+
+    # Download data if not present already
+    download_and_extract()
+    compute_mean_and_std()
+
+    # Make checkpoints subdir if not existing
+    os.makedirs("checkpoints", exist_ok=True)
+    
+    # Make sure we can reach the installed binaries. This is needed for the workspace
+    if os.path.exists("/data/DLND/C2/landmark_images"):
+        os.environ['PATH'] = f"{os.environ['PATH']}:/root/.local/bin"
+>>>>>>> origin/main
 
 
 def get_data_location():

@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 checkpoints/
 checkpoints/best_val_loss.pt
 
 .kaggle/
 landmark_images/
+=======
+>>>>>>> origin/main
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -14,6 +17,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+<<<<<<< HEAD
 # Conda environments
 .envs/
 envs/
@@ -25,6 +29,8 @@ conda-meta/
 pkgs/
 
 # Python distribution / packaging
+=======
+>>>>>>> origin/main
 develop-eggs/
 dist/
 downloads/
