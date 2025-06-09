@@ -168,15 +168,17 @@ def optimize(data_loaders, model, optimizer, loss_fn, n_epochs, save_path, devic
 
     valid_loss_min = None
     logs = {}
-
+    
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
         mode="min",
-        factor=0.1,
+        factor=0.5,
         patience=scheduler_patience,
         threshold=1e-2,
-        verbose=True
+        verbose=True,
+        min_lr=1e-6,  # Prevents LR from going too low
     )
+
 
     for epoch in range(1, n_epochs + 1):
         train_loss = train_one_epoch(data_loaders["train"], model, optimizer, loss_fn, device)
